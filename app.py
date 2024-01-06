@@ -1,13 +1,15 @@
+# Importing necessary libraries
 import os
 import streamlit as st
 import torch
 import string
 from transformers import BertTokenizer, BertForMaskedLM
-
+# Setting up the Streamlit page
 st.set_page_config(page_title='Next Word Prediction Model', page_icon=None, layout='centered', initial_sidebar_state='auto')
-
+# Caching function to load the BERT model and tokenizer
 @st.cache()
 def load_model(model_name):
+  # Load BERT model and tokenizer
   try:
     if model_name.lower() == "bert":
       bert_tokenizer = BertTokenizer.from_pretrained('bert-base-uncased')
@@ -18,6 +20,7 @@ def load_model(model_name):
 
 #use joblib to fast your function
 
+# Function to decode predicted indices to tokens
 def decode(tokenizer, pred_idx, top_clean):
   ignore_tokens = string.punctuation + '[PAD]'
   tokens = []
@@ -36,7 +39,7 @@ def encode(tokenizer, text_sentence, add_special_tokens=True):
     input_ids = torch.tensor([tokenizer.encode(text_sentence, add_special_tokens=add_special_tokens)])
     mask_idx = torch.where(input_ids == tokenizer.mask_token_id)[1].tolist()[0]
   return input_ids, mask_idx
-
+# Function to encode text and get predictions
 def get_all_predictions(text_sentence, top_clean=5):
     # ========================= BERT =================================
   input_ids, mask_idx = encode(bert_tokenizer, text_sentence)
@@ -58,6 +61,8 @@ try:
   st.markdown("<h1 style='text-align: center;'>Next Word Prediction</h1>", unsafe_allow_html=True)
   st.markdown("<h4 style='text-align: center; color: #B2BEB5;'><i>Keywords  : BertTokenizer, BertForMaskedLM, Pytorch</i></h4>", unsafe_allow_html=True)
 
+# Streamlit app layout and user input
+  
   st.sidebar.text("Next Word Prediction Model")
   top_k = st.sidebar.slider("Select How many words do you need", 1 , 25, 1) #some times it is possible to have less words
   print(top_k)
